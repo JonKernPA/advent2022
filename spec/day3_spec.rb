@@ -60,17 +60,6 @@ RSpec.describe 'DAY 3: Rucksack Contents', type: :model do
     expect(Rucksack::GROUP_SIZE).to eql(3)
   end
 
-  it 'resets the group counter' do
-    Rucksack.reset_group
-    expect(Rucksack.group_count).to eql(0)
-  end
-
-  it 'increments group count on object creation' do
-    Rucksack.reset_group
-    Rucksack.new('vJrwpWtwJgWrhcsFMMfFFhFp')
-    expect(Rucksack.group_count).to eql(1)
-  end
-
   it 'has groups of elves' do
     Rucksack.new('vJrwpWtwJgWrhcsFMMfFFhFp')
     Rucksack.new('jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL')
@@ -108,8 +97,8 @@ RSpec.describe 'DAY 3: Rucksack Contents', type: :model do
     Rucksack.new('ttgJtRGJQctTZtZT')
     Rucksack.new('CrZsJsPPZsGzwwsLwLmpwMDw')
 
-    Rucksack.total_badges
-    expect(Rucksack.badge_sum).to eql(70)
+
+    expect(Rucksack.total_badges).to eql(70)
   end
 
   it 'does the day 3 exercise test' do

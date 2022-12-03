@@ -4,18 +4,14 @@ class Rucksack
 
   attr_accessor :compartments, :repeated, :priority
   class << self
-    attr_accessor :priority_sum, :groups, :group_count, :badge_sum
+    attr_accessor :priority_sum, :groups
   end
 
   @priority_sum = nil
   @groups = [[]]
-  @group_count = nil
-  @badge_sum = nil
 
   def initialize(contents)
     Rucksack.priority_sum ||= 0
-    Rucksack.group_count ||= 0
-    # Rucksack.badge_sum ||= 0
 
     @compartments = []
     @compartments = contents.chars.each_slice( (contents.size/2).round ).to_a
@@ -27,9 +23,7 @@ class Rucksack
 
     if Rucksack.groups.last.size < GROUP_SIZE
       Rucksack.groups.last << self
-      Rucksack.group_count += 1
     else
-      Rucksack.group_count = 0
       Rucksack.groups << [self]
     end
   end
@@ -52,17 +46,12 @@ class Rucksack
   end
 
   def self.process(file_name)
-    # Rucksack.reset_priority_sum
     lines = 0
     File.readlines("#{file_name}").each do |contents|
       Rucksack.new(contents.strip)
       lines += 1
     end
     puts "#{lines} lines processed, #{Rucksack.groups.size} groups"
-  end
-
-  def self.reset_group
-    @group_count = 0
   end
 
   def self.wipe_groups
@@ -79,17 +68,13 @@ class Rucksack
     end
   end
 
-  def self.reset_badge_sum
-    Rucksack.badge_sum = 0
-  end
-
   def self.total_badges
-    Rucksack.badge_sum = 0
+    badge_sum = 0
     Rucksack.groups.each do |group|
       rucksack_badge = Rucksack.badge(group)
-      Rucksack.badge_sum += Rucksack.prioritize(rucksack_badge)
+      badge_sum += Rucksack.prioritize(rucksack_badge)
     end
-    Rucksack.badge_sum
+    badge_sum
   end
 
 end
