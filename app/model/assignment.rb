@@ -27,21 +27,28 @@ class Assignment
     results.any? && (results == @pair[0].sections || results == @pair[1].sections)
   end
 
+  def partial_overlap
+    results = (@pair[0].sections & pair[1].sections) || (@pair[1] & pair[0])
+    results.any?
+  end
+
 end
 
 class AssignmentMaker
 
-  attr_accessor :overlap_count
+  attr_accessor :overlap_count, :partial_overlap_count
 
   def initialize(file_name)
     lines = 0
     @overlap_count = 0
+    @partial_overlap_count = 0
     File.readlines("#{file_name}").each do |contents|
       assignment = Assignment.new(contents)
       @overlap_count += 1 if assignment.overlap
+      @partial_overlap_count += 1 if assignment.partial_overlap
       lines += 1
     end
-    puts "#{lines} lines processed, #{@overlap_count} overlaps"
+    puts "#{lines} lines processed, #{@overlap_count} FULL overlaps, #{@partial_overlap_count} PARTIAL overlaps"
   end
 
 end

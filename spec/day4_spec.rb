@@ -45,7 +45,7 @@ RSpec.describe 'DAY 4: Cleaning Assignments', type: :model do
   end
 
   describe 'Assignment Maker' do
-    it 'processes contents from a file' do
+    it 'processes contents from a test file' do
       maker = AssignmentMaker.new('spec/test_input_day4.txt')
       expect(maker.overlap_count).to eql(2)
     end
@@ -59,5 +59,18 @@ RSpec.describe 'DAY 4: Cleaning Assignments', type: :model do
     end
   end
 
+  context 'Part 2' do
+    it 'processes contents from a test file' do
+      maker = AssignmentMaker.new('spec/test_input_day4.txt')
+      expect(maker.partial_overlap_count).to eql(4)
+    end
+
+    # 1000 lines processed, 448 FULL overlaps, 794 PARTIAL overlaps
+    it 'processes contents from the input file' do
+      maker = AssignmentMaker.new('app/data/day4.txt')
+      ap "TADA: #{maker.partial_overlap_count}"
+      expect(maker.partial_overlap_count).to eql(794)
+    end
+  end
 
 end
