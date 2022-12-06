@@ -18,10 +18,10 @@ RSpec.describe 'DAY 6: Communication Protocol', type: :model do
     describe '.find_marker' do
       it 'processes a string' do
         receiver = Receiver.new('spec/test_input_day6.txt')
-        expect(receiver.find_marker('bvwbjplbgvbhsrlpgdmjqwftvncz')).to eql(['vwbj',5])
-        expect(receiver.find_marker('nppdvjthqldpwncqszvftbrmjlhg')).to eql(['pdvj',6])
-        expect(receiver.find_marker('nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg')).to eql(['rfnt',10])
-        expect(receiver.find_marker('zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw')).to eql(['zqfr',11])
+        expect(receiver.find_repeater('bvwbjplbgvbhsrlpgdmjqwftvncz')).to eql(['vwbj', 5])
+        expect(receiver.find_repeater('nppdvjthqldpwncqszvftbrmjlhg')).to eql(['pdvj', 6])
+        expect(receiver.find_repeater('nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg')).to eql(['rfnt', 10])
+        expect(receiver.find_repeater('zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw')).to eql(['zqfr', 11])
 
       end
     end

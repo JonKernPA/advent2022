@@ -8,16 +8,16 @@ class Receiver
     @packet_marker = ''
     File.readlines("#{file_name}").each do |contents|
       chars += contents.chars.size
-      @packet_marker = find_marker(contents)
+      @packet_marker = find_repeater(contents)
       lines += 1
     end
     puts "#{chars} characters processed"
 
   end
 
-  def find_marker(str)
+  def find_repeater(str, num_distinct = 4)
     chars = str.chars
-    processed = chars.slice!(0..2)
+    processed = chars.slice!(0..(num_distinct-2))
     set = Set.new(processed)
     chars.each_with_index do |c,i|
       processed << c
@@ -33,8 +33,6 @@ class Receiver
         set = Set.new(processed)
       end
 
-      # puts processed.inspect
-      # puts set.inspect
     end
   end
 end
