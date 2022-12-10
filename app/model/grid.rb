@@ -35,6 +35,9 @@ class Grid
   def load_row(row, txt)
     arr = txt.strip.chars.map { |t| t.to_i }
     @grid[row] = @grid[row] && arr
+  end
+
+  def transpose_grid
     @t_grid = @grid.transpose
   end
 
@@ -43,6 +46,7 @@ class Grid
   end
 
   def col(index)
+    # Be sure transpose_grid has been called first
     t_grid[index]
   end
 
@@ -146,8 +150,9 @@ class Grid
     puts "#{lines} lines processed"
     # puts grid.grid.inspect
 
+    grid.transpose_grid # for column access
     grid.grid.each_with_index{|r,i| grid.find_visible_in_row(i)}
-    grid.t_grid.each_with_index{|c,i| grid.find_visible_in_col(i)}
+    grid.grid.each_with_index{|r,i| grid.find_visible_in_col(i)}
 
     grid
   end

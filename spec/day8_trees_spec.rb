@@ -50,6 +50,7 @@ RSpec.describe 'DAY 8: Treehouse Planning', type: :model do
       @grove.load_row(2, '65332')
       @grove.load_row(3, '33549')
       @grove.load_row(4, '35390')
+      @grove.transpose_grid
     end
 
     it 'has a 2D grid' do
