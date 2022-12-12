@@ -15,7 +15,7 @@
 
 class Grid
 
-  attr_accessor :grid, :t_grid, :dimensions
+  attr_accessor :grid, :t_grid, :dimensions, :max_scenic_score
   attr_reader :row, :col
   # visible[] holds the coordinates of trees that are visible
   attr_reader :visible
@@ -26,6 +26,7 @@ class Grid
     @grid.map! { initialize_row(length_of_side) }
     @visible = Set.new
     @dimensions = [@grid.size, @grid[0].size]
+    @max_scenic_score = 0
   end
 
   def initialize_row(length_of_side)
@@ -47,7 +48,8 @@ class Grid
 
   def col(index)
     # Be sure transpose_grid has been called first
-    t_grid[index]
+    transpose_grid if @t_grid.nil?
+    @t_grid[index]
   end
 
   def find_visible_in_col(index, reverse=false)
@@ -72,7 +74,7 @@ class Grid
     # simply reverse things and adjust the column number
     offset = 0
     if reverse
-      list.reverse!
+      list = list.reverse
       puts '>>REV<< ' * 2 if debug
       offset = list.size - 1
     end
@@ -82,6 +84,7 @@ class Grid
     tallest = list.max
     # -1 makes it easy for trees at the edge with height 0 to have a ∆ of 1
     last_tallest = -1
+
     list.each_with_index do |height, i|
       column = i
       if reverse
@@ -114,6 +117,7 @@ class Grid
       end
     end
     # puts "Found #{items_found.size} items"
+
     items_found
   end
 
@@ -121,40 +125,126 @@ class Grid
     @visible.to_a
   end
 
-  def scenic_trees(start,arr)
-    scenic = Set.new
-    left = arr.slice(0..(start-1))
-    puts left.inspect
-    # scenic += self.find_visible_in_list(index, type='row', reverse=nil)
-    right = arr.slice((start+1)..(arr.size-1))
-    puts right.inspect
+  def display_grid
+    text_lines = []
+    grid.each do |row|
+      text = '|'
+      row.each do |tree|
+        text += " %1d |" % [tree]
+      end
+      text_lines << text
+    end
+    puts text_lines.join("\n")
+
   end
 
-  def compute_scenic_score(row,col)
+  # Stop if you reach an edge or at the first tree that is the same height or taller
+  # than the tree under consideration
+  def find_scenic_in_list(list)
+    debug = false
+    items_found = []
+    current_height = list[0]
+    # puts "Counting trees until we find one that is >= #{current_height} in '#{list.join}'" if debug
+    puts list.join if debug
+    list.each_with_index do |height, i|
+      next if i == 0
+      delta = height - current_height
+      # puts "∆: #{delta} for #{height}" if debug
+      if delta == 0
+        # if the height is the same, add it & stop looking
+        puts "∆: #{delta} for #{height} --> add #{height}" if debug
+        items_found << height
+        break
+      elsif delta > 0
+        # if the height is higher, add it & stop looking
+        puts "∆: #{delta} for #{height} --> add #{height}" if debug
+        items_found << height
+        break
+      elsif delta < 0
+        # if the height is lower, add it and keep looking
+        puts "∆: #{delta} for #{height} --> add #{height}" if debug
+        items_found << height
+      end
+    end
 
+    items_found
+  end
+
+  def scenic_trees(start,arr)
+    scenic = []
+    looking_left = arr.slice(0..(start)).reverse
+    scenic << self.find_scenic_in_list(looking_left).size
+
+    looking_right = arr.slice((start)..(arr.size-1))
+    scenic << self.find_scenic_in_list(looking_right).size
+    scenic
+  end
+
+  # Compute the score for tree at [row, col] in the grid
+  # The score is based on the number of trees visible in all 4 directions.
+  # Stop if you reach an edge or at the first tree that is the same height or taller
+  # than the tree under consideration
+  def compute_scenic_score(row,col)
+    # puts "Tree at [#{row},#{col}], height of #{row(row)[col]}"
+    # Combine the score in the current row and column
+    list = scenic_trees(col,row(row))
+    list += scenic_trees(row,col(col))
+
+    scenic_score = 1
+    list.each do |h|
+      next if h == 0
+      scenic_score = scenic_score*h
+    end
+    # puts "#{scenic_score} for #{list.inspect}"
+    scenic_score
+  end
+
+  def find_max_scenic_score
+    @max_scenic_score = 0
+    rows = @dimensions[0] - 1
+    cols = @dimensions[1] - 1
+    text_lines = []
+    # puts "Scoring a #{rows+1}x#{cols+1} matrix"
+    (1..rows-1).each do |r|
+      list = row(r)
+      text = '|'
+      (1..cols-1).each do |col|
+        tree = list[col]
+        score = compute_scenic_score(r,col)
+        text += "%4d|" % score
+        if score > @max_scenic_score
+          @max_scenic_score = score
+        end
+      end
+      text_lines << text
+    end
+    # puts text_lines.join("\n")
+    puts "Max Scenic Score #{@max_scenic_score}"
   end
 
   def self.process(file_name)
-    grid = nil
+    grove = nil
     lines = 0
     File.readlines("#{file_name}").each_with_index do |contents, i|
       next if contents.strip.empty?
       if i == 0
-        puts "Build new grid(#{contents.strip.size}) for '#{contents.strip}'"
-        grid = Grid.new(contents.strip.size)
-        puts grid.dimensions.inspect
+        # puts "Build new grid(#{contents.strip.size}) for '#{contents.strip}'"
+        grove = Grid.new(contents.strip.size)
+        # puts grove.dimensions.inspect
       end
-      grid.load_row(i, contents.strip)
+      grove.load_row(i, contents.strip)
+      # puts grove.grid[0].inspect if i == 0
       lines += 1
     end
     puts "#{lines} lines processed"
-    # puts grid.grid.inspect
 
-    grid.transpose_grid # for column access
-    grid.grid.each_with_index{|r,i| grid.find_visible_in_row(i)}
-    grid.grid.each_with_index{|r,i| grid.find_visible_in_col(i)}
+    grove.transpose_grid # for column access
 
-    grid
+    grove.grid.each_with_index{|r,i| grove.find_visible_in_row(i)}
+    grove.grid.each_with_index{|r,i| grove.find_visible_in_col(i)}
+
+    grove.find_max_scenic_score
+    grove
   end
 
 end

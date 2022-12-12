@@ -32,6 +32,14 @@ RSpec.describe 'DAY 8: Treehouse Planning', type: :model do
     expect(grid[4]).to eql([3,5,3,9,0])
   end
 
+  it 'loads long content' do
+    sample = '000130010133444334124411122525303126205322331530363021562050544410330230535525023331433124342133030'
+    grove = Grid.new(5)
+    grove.load_row(0, sample)
+    puts grove.grid.inspect
+    expect(grove.grid[0].slice(0..9)).to eql([0,0,0,1,3,0,0,1,0,1])
+  end
+
   context 'Part 1: looking for trees visible from the outside' do
 
     # R +---------+
@@ -98,10 +106,10 @@ RSpec.describe 'DAY 8: Treehouse Planning', type: :model do
   end
 
   it 'processes a test file' do
-    grid = Grid.process('spec/test_input_day8.txt')
-    expect(grid.dimensions).to eql([5,5])
-    expect(grid.visible.size).to eql(21)
-    expect(grid.visible).to include(
+    grove = Grid.process('spec/test_input_day8.txt')
+    expect(grove.dimensions).to eql([5,5])
+    expect(grove.visible.size).to eql(21)
+    expect(grove.visible).to include(
                               [0,0],[0,1],[0,2],[0,3],[0,4],
                               [1,0],[1,1],[1,2],      [1,4],
                               [2,0],[2,1],      [2,3],[2,4],
@@ -137,15 +145,45 @@ RSpec.describe 'DAY 8: Treehouse Planning', type: :model do
       @grove.load_row(4, '35390')
     end
 
-    it 'finds the scenic score for a given tree in a sequence' do
+    it 'count trees visible in each direction from a point in the sequence' do
+      # 2nd Row
       # 1 |2|5|5|1|2|
       #      ^ * ^ ^
-      expect(@grove.scenic_trees(2, [2,5,5,1,2])).to eql([5,1,2])
+      expect(@grove.scenic_trees(2, [2,5,5,1,2])).to eql([1,2])
+
+      # 3rd Column
+      # 2 |3|5|3|5|3|
+      #    ^ * ^ ^
+      expect(@grove.scenic_trees(1, [3,5,3,5,3])).to eql([1,2])
+
+      # 0 |3|0|3|7|3|
+      expect(@grove.scenic_trees(3, [3,0,3,7,3])).to eql([3,1])
+
     end
 
     it 'finds scenic view score for a given tree' do
       # 1 |2|5|5|1|2|
       expect(@grove.compute_scenic_score(1,2)).to eql(4)
+      # 3 |3|3|5|4|9|
+      expect(@grove.compute_scenic_score(3,2)).to eql(8)
+    end
+
+    it 'compute all scenic scores, find max' do
+      puts "Line #{__LINE__ }"
+      puts @grove.display_grid
+      puts '='*35
+      @grove.find_max_scenic_score
+      expect(@grove.max_scenic_score).to eql(8)
+    end
+
+    it 'processes a test file' do
+      grove = Grid.process('spec/test_input_day8.txt')
+      expect(grove.max_scenic_score).to eql(8)
+    end
+
+    it 'processes the input file' do
+      grove = Grid.process('app/data/day8.txt')
+      expect(grove.max_scenic_score).to eql(536625)
     end
 
   end
