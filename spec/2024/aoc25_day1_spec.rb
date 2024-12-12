@@ -30,4 +30,27 @@ RSpec.describe "Day 1", type: :model do
 
   end
 
+  it 'Computes the difference between each list item in a file' do
+    input = []
+    File.readlines("spec/2024/day_1_input.txt").each do |l|
+      input << l
+    end
+
+    raw_locations = input.map do |line|
+      line.split.map(&:to_i)
+    end
+
+    left = raw_locations.map(&:first).sort
+    right = raw_locations.map(&:last).sort
+
+
+    # Compute the difference between each list item
+    answer = left.zip(right).map do |l, r|
+      (r - l).abs
+    end.sum
+
+    expect(answer).to eq(1506483)
+
+  end
+
 end
