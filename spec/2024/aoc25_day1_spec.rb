@@ -10,29 +10,22 @@ RSpec.describe "Day 1", type: :model do
       1   3
       3   9
       3   3
-    }
-    left = []
-    right = []
-    input.split("\n").map do |line|
-      row = line.split.map(&:to_i)
-      if row.any?
-        left << row[0]
-        right << row[1]
-      end
+}
+    raw_locations = input
+                      .split("\n")
+                      .reject { |i| i.empty? || i == "" }
+                      .map do |line|
+      line.split.map(&:to_i)
     end
-    left = left.sort
-    right = right.sort
+
+    left = raw_locations.map(&:first).sort
+    right = raw_locations.map(&:last).sort
 
     # Compute the difference between each list item
-    diff_sum = 0
-    left.each do |l|
-      r = right.shift
-      diff = (r - l).abs
-      ap "#{r} - #{l} = #{diff}"
-      diff_sum += diff
-    end
-    answer = diff_sum
-    ap answer
+    answer = left.zip(right).map do |l, r|
+      (r - l).abs
+    end.sum
+
     expect(answer).to eq(11)
 
   end
